@@ -25,7 +25,16 @@ module.exports = function(app) {
         // hent oste fra mongoDB mumbojumbo
         try {
             var result = await Cheese.find();
-            response.json(result);
+            
+            var output = {
+                count: result.length,
+                next: `${request.protocol}://${request.hostname}${request.hostname == "localhost" ? ":" + process.env.PORT : ""}${request.url}?offset=20`,
+                previous: "",
+                url: `${request.protocol}://${request.hostname}${request.hostname == "localhost" ? ":" + process.env.PORT : ""}${request.url}`,
+                results: result
+            }
+            response.json(output);
+            
         } catch (error) {
             return next(error);
         }
