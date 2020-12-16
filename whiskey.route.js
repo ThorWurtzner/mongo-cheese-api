@@ -1,35 +1,36 @@
-const { request, response } = require("express");
-const Cheese = require("./cheese.model");
+const Whiskey = require("./whiskey.model");
 const auth = require("./auth-middleware.js");
 
 module.exports = function(app) {
 
-    // create a cheese
-    app.post("/api/v1/cheeses", auth, function(request, response, next) {
+    // create a whiskey
+    app.post("/api/v1/whiskey", auth, function(request, response, next) {
         try {
-            var cheese = new Cheese({
+            var whiskey = new Whiskey({
                 name: request.fields.name,
-                price: request.fields.price,
-                weight: request.fields.weight,
+                distillery: request.fields.distillery,
+                age: request.fields.age,
                 strength: request.fields.strength,
-                brand: request.fields.brand
+                size: request.fields.size,
+                price: request.fields.price,
+                country: request.fields.country
             })
-            cheese.save();
+            whiskey.save();
             response.status(201);
-            response.json(cheese);
+            response.json(whiskey);
         } catch (error) {
             return next(error);
         }
     });
 
-    // get all cheeses
-    app.get("/api/v1/cheeses", async function(request, response, next) {
+    // get all whiskey
+    app.get("/api/v1/whiskey", async function(request, response, next) {
         var limit = parseInt(request.query.limit) || 5;
         var offset = parseInt(request.query.offset) || 0;
         
         try {
-            var result = await Cheese.find().limit(limit).skip(offset);
-            var count = (await Cheese.find()).length;
+            var result = await Whiskey.find().limit(limit).skip(offset);
+            var count = (await Whiskey.find()).length;
 
             var queryLimit = request.query.limit;
             var queryOffset = request.query.offset || 0;
@@ -65,10 +66,10 @@ module.exports = function(app) {
         }
     });
 
-    // get single cheese by id
-    app.get("/api/v1/cheeses/:id", async function(request, response, next) {
+    // get single whiskey by id
+    app.get("/api/v1/whiskey/:id", async function(request, response, next) {
         try {
-            var result = await Cheese.findById(request.params.id);
+            var result = await Whiskey.findById(request.params.id);
             if (!result) {
                 response.status(404);
                 response.end();
@@ -80,33 +81,36 @@ module.exports = function(app) {
         }
     });
 
-    // update a cheese
-    app.patch("/api/v1/cheeses/:id", auth, async function(request, response, next) {
+    // update a whiskey
+    app.patch("/api/v1/whiskey/:id", auth, async function(request, response, next) {
         try {
-            var { name, price, weight, strength, brand } = request.fields;
+            var { name, distillery, age, strength, size, price, country } = request.fields;
             var updateObject = {};
 
             // if the field has something in it, and exists, it will overwrite with the new input
+        
             if (name) updateObject.name = name;
-            if (price) updateObject.price = price;
-            if (weight) updateObject.weight = weight;
+            if (distillery) updateObject.distillery = distillery;
+            if (age) updateObject.age = age;
             if (strength) updateObject.strength = strength;
-            if (brand) updateObject.brand = brand;
+            if (size) updateObject.size = size;
+            if (price) updateObject.price = price;
+            if (country) updateObject.country = country;
 
-            await Cheese.findByIdAndUpdate(request.params.id, updateObject);
-            var cheese = await Cheese.findById(request.params.id);
+            await Whiskey.findByIdAndUpdate(request.params.id, updateObject);
+            var whiskey = await Whiskey.findById(request.params.id);
 
             response.status(200);
-            response.json(cheese);
+            response.json(whiskey);
         } catch (error) {
             return next(error);
         }
     });
 
-    // delete a single cheese by id
-    app.delete("/api/v1/cheeses/:id", auth, async function(request, response, next) {
+    // delete a single whiskey by id
+    app.delete("/api/v1/whiskey/:id", auth, async function(request, response, next) {
         try {
-            await Cheese.findByIdAndRemove(request.params.id);
+            await Whiskey.findByIdAndRemove(request.params.id);
             response.status(204);
             response.end();
         } catch (error) {
