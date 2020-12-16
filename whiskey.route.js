@@ -43,7 +43,7 @@ module.exports = function(app) {
                 queryStringPrev.push("limit=" + queryLimit)
             }
 
-            // queryStringNext.push("offset=" + (parseInt(queryOffset) + limit));
+            queryStringNext.push("offset=" + (parseInt(queryOffset) + limit));
 
             if (queryOffset) {
                 queryStringNext.push("offset=" + (parseInt(queryOffset) + limit));
