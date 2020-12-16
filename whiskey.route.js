@@ -29,82 +29,40 @@ module.exports = function(app) {
         var offset = parseInt(request.query.offset) || 0;
         
         try {
-            var result = await Whiskey.find().limit(limit).skip(offset);
-            var count = (await Whiskey.find()).length;
+			var result = await Whiskey.find().limit(limit).skip(offset);
+			var count = (await Whiskey.find()).length;
 
-            var queryLimit = request.query.limit;
-            var queryOffset = request.query.offset || 0;
+			var qLimit = request.query.limit;
+			var qOffset = request.query.offset || 0;
 
-            var queryStringNext = [];
-            var queryStringPrev = [];
+			var queryStringNext = [];
+			var queryStringPrevious = [];
 
-            if (queryLimit) {
-                queryStringNext.push("limit=" + queryLimit)
-                queryStringPrev.push("limit=" + queryLimit)
-            }
+			if (qLimit) {
+				queryStringNext.push("limit=" + qLimit);
+				queryStringPrevious.push("limit=" + qLimit);
+			}
 
-            queryStringNext.push("offset=" + (parseInt(queryOffset) + limit));
+			queryStringNext.push("offset=" + (parseInt(qOffset) + limit));
 
-            if (queryOffset) {
-                queryStringNext.push("offset=" + (parseInt(queryOffset) + limit));
-                queryStringPrev.push("offset=" + (parseInt(queryOffset) - limit));
-            }
+			if (qOffset) {
+				queryStringPrevious.push("offset=" + (parseInt(qOffset) - limit));
+			}
 
-            var baseUrl = `${request.protocol}://${request.hostname}${request.hostname == "localhost" ? ":" + process.env.PORT : ""}${request._parsedUrl.pathname}`
-            
-            var output = {
-                count,
-                next: (offset + limit < count) ? `${baseUrl}?${queryStringNext.join("&")}` : null,
-                previous: offset > 0 ? `${baseUrl}?${queryStringPrev.join("&")}` : null,
-                url: `${baseUrl}?` + (offset ? "offset=" + offset : ""),
-                results: result
-            }
-            response.json(output);
-            
-        } catch (error) {
-            return next(error);
-        }
-    });
+			var baseUrl = `${request.protocol}://${request.hostname}${ request.hostname == "localhost" ? ":" + process.env.PORT : "" }${ request._parsedUrl.pathname }`;
 
-    // get single whiskey by id
-    app.get("/api/v1/whiskey/:id", async function(request, response, next) {
-        try {
-            var result = await Whiskey.findById(request.params.id);
-            if (!result) {
-                response.status(404);
-                response.end();
-                return;
-            }
-            response.json(result);
-        } catch (error) {
-            return next(error);
-        }
-    });
+			var output = {
+				count,
+				next: (offset + limit < count) ? `${baseUrl}?${queryStringNext.join("&")}` : null,
+				previous: offset > 0 ? `${baseUrl}?${queryStringPrevious.join("&")}` : null,
+				url: `${baseUrl}?` + (offset ? "offset=" + offset : ""),
+				results: result
+			}
 
-    // update a whiskey
-    app.patch("/api/v1/whiskey/:id", auth, async function(request, response, next) {
-        try {
-            var { name, distillery, age, strength, size, price, country } = request.fields;
-            var updateObject = {};
-
-            // if the field has something in it, and exists, it will overwrite with the new input
-        
-            if (name) updateObject.name = name;
-            if (distillery) updateObject.distillery = distillery;
-            if (age) updateObject.age = age;
-            if (strength) updateObject.strength = strength;
-            if (size) updateObject.size = size;
-            if (price) updateObject.price = price;
-            if (country) updateObject.country = country;
-
-            await Whiskey.findByIdAndUpdate(request.params.id, updateObject);
-            var whiskey = await Whiskey.findById(request.params.id);
-
-            response.status(200);
-            response.json(whiskey);
-        } catch (error) {
-            return next(error);
-        }
+			response.json(output);
+		} catch (error) {
+			return next(error);
+		}
     });
 
     // delete a single whiskey by id
