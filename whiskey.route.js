@@ -13,7 +13,8 @@ module.exports = function(app) {
                 strength: request.fields.strength,
                 size: request.fields.size,
                 price: request.fields.price,
-                country: request.fields.country
+                country: request.fields.country,
+                image: request.fields.image
             })
             whiskey.save();
             response.status(201);
@@ -64,6 +65,56 @@ module.exports = function(app) {
 			return next(error);
 		}
     });
+
+    // get single whiskey by id
+	app.get("/api/v1/whiskey/:id", async function(request, response, next) {
+		try {
+			// hent en ost ud fra id
+			var result = await Whiskey.findById(request.params.id);
+
+			// hvis osten ikke findes: fejl 404
+			if (!result) {
+				response.status(404);
+				response.end();
+				return;
+			}
+
+			// hvis osten findes
+			response.json(result);
+
+		// fejlhåndtering
+		} catch (error) {
+			return next(error);
+		}
+    });
+    
+    // update a whiskey
+	app.patch("/api/v1/whiskey/:id", auth, async function(request, response, next) {
+		try {
+            var { name, distillery, age, strength, size, price, country } = request.fields;
+            var updateObject = {};
+
+            // if the field has something in it, and exists, it will overwrite with the new input
+
+            if (name) updateObject.name = name;
+            if (distillery) updateObject.distillery = distillery;
+            if (age) updateObject.age = age;
+            if (strength) updateObject.strength = strength;
+            if (size) updateObject.size = size;
+            if (price) updateObject.price = price;
+            if (country) updateObject.country = country;
+            if (image) updateObject.image = image;
+
+			await Whiskey.findByIdAndUpdate(request.params.id, updateObject);
+
+			var whiskey = await Whiskey.findById(request.params.id);
+
+			response.status(200);
+			response.json(whiskey);
+		} catch (error) {
+			return next(error);
+		}
+	});
 
     // delete a single whiskey by id
     app.delete("/api/v1/whiskey/:id", auth, async function(request, response, next) {

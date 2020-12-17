@@ -7,7 +7,8 @@ var Whiskey = new Schema({
     strength: SchemaTypes.Number,
     size: SchemaTypes.Number,
     price: SchemaTypes.Decimal128,
-    country: SchemaTypes.String
+    country: SchemaTypes.String,
+    image: SchemaTypes.String
 });
 
 module.exports = model("Whiskey", Whiskey);
