@@ -91,7 +91,7 @@ module.exports = function(app) {
     // update a whiskey
 	app.patch("/api/v1/whiskey/:id", auth, async function(request, response, next) {
 		try {
-            var { name, distillery, age, strength, size, price, country } = request.fields;
+            var { name, distillery, age, strength, size, price, country, image } = request.fields;
             var updateObject = {};
 
             // if the field has something in it, and exists, it will overwrite with the new input
